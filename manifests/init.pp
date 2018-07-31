@@ -74,7 +74,8 @@ class postfix (
                 $mynetworks_style                    = 'subnet',
                 $custom_config_main                  = {},
                 $aliases                             = {},
-                $transports                          = {}
+                $transports                          = {},
+                $instances                           = {}
               ) inherits postfix::params {
 
   Exec {
@@ -119,6 +120,7 @@ class postfix (
   validate_hash($custom_config_main)
   validate_hash($aliases)
   validate_hash($transports)
+  validate_hash($instances)
 
   user { $postfix_username:
     ensure  => 'present',
@@ -379,5 +381,7 @@ class postfix (
       add_default_smtpd_instance => $add_default_smtpd_instance,
       default_smtpd_args         => $smtpd_instance_args,
     }
+
+    create_resources('postfix::instance', $instances)
   }
 }
