@@ -156,9 +156,22 @@ postfix::alias { 'blackhole':
   to => '/dev/null',
 }
 
+class { 'postfix':
+  aliases => {
+    'blackhole' => { 'to' => '/dev/null' }
+  }
+}
+
 postfix::vmail::alias { '@blackhole.com':
   aliasto => [ 'blackhole@' ],
 }
+```
+
+From Hiera:
+```yaml
+postfix::aliases:
+  blackhole:
+    to: /dev/null
 ```
 
 log example:
