@@ -274,12 +274,34 @@ postfix::transport { 'example.com':
 }
 ```
 
+```puppet
+class { 'postfix':
+  transports => {
+    'example.com' => { error => 'email to this domain is not allowed' }
+  }
+}
+```
+
+From Hiera:
+```yaml
+postfix::transports:
+  'example.com':
+    'error': 'email to this domain is not allowed'
+```
+
 SMTP route:
 
 ```puppet
 postfix::transport { 'example.com':
   nexthop => '1.1.1.1',
 }
+```
+
+From Hiera:
+```yaml
+postfix::transports:
+  'example.com':
+    'nexthop': '1.1.1.1'
 ```
 
 ### postfix::vmail
