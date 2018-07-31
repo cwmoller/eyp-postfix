@@ -255,6 +255,19 @@ Most variables are standard postfix variables, please refer to postfix documenta
  * setgid_group
  * (...)
 
+For any variables that aren't handled, you can add your own key-value pairs with **custom_config_main**
+```puppet
+class { 'postfix':
+  custom_config_main => {
+    'smtp_sasl_auth_enable'      => 'yes',
+    'smtp_sasl_security_options' => 'noanonymous',
+    'smtp_sasl_password_maps'    => 'hash:/etc/postfix/sasl/sasl_passwd',
+    'smtp_tls_security_level'    => 'encrypt',
+    'smtp_tls_CAfile'            => '/etc/ssl/certs/ca-bundle.crt'
+  }
+}
+```
+
 * **install_mailclient**: controls if a mail client should be installed (default: true)
 
 #### SSL certificates:

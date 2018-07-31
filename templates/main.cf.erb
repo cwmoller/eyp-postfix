@@ -799,3 +799,7 @@ append_dot_mydomain = <%= scope.function_bool2yesno([@append_dot_mydomain]) %>
 default_process_limit = <%= @default_process_limit %>
 smtpd_client_connection_count_limit = <%= @smtpd_client_connection_count_limit %>
 smtpd_client_connection_rate_limit = <%= @smtpd_client_connection_rate_limit %>
+
+<% @custom_config_main.map do |k,v| -%>
+<%= k %> = <%= v %>
+<% end -%>

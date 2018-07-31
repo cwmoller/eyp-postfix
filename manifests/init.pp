@@ -72,6 +72,7 @@ class postfix (
                 $message_size_limit                  = undef, # @param message_size_limit The maximal size in bytes of a message, including envelope information. (default: undef)
                 $compatibility_level                 = $postfix::params::compatibility_level_default,
                 $mynetworks_style                    = 'subnet',
+                $custom_config_main                  = {}
               ) inherits postfix::params {
 
   Exec {
@@ -112,6 +113,8 @@ class postfix (
   }
 
   validate_re($home_mailbox, [ '^Maildir/$', '^Mailbox$', '^$' ], 'Not a supported home_mailbox - valid values: Mailbox, Maildir/ or empty string')
+
+  validate_hash($custom_config_main)
 
   user { $postfix_username:
     ensure  => 'present',
