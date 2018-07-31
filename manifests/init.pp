@@ -73,7 +73,8 @@ class postfix (
                 $compatibility_level                 = $postfix::params::compatibility_level_default,
                 $mynetworks_style                    = 'subnet',
                 $custom_config_main                  = {},
-                $aliases                             = {}
+                $aliases                             = {},
+                $transports                          = {}
               ) inherits postfix::params {
 
   Exec {
@@ -117,6 +118,7 @@ class postfix (
 
   validate_hash($custom_config_main)
   validate_hash($aliases)
+  validate_hash($transports)
 
   user { $postfix_username:
     ensure  => 'present',
@@ -294,6 +296,12 @@ class postfix (
     order   => '00',
     content => template("${module_name}/header.erb"),
   }
+
+  #
+  # transport maps
+  #
+
+  create_resources('postfix::transport', $transports)
 
   #
   # alias maps

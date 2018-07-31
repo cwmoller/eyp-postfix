@@ -1,0 +1,5 @@
+
+<%= @domain %>      <%= @transport_real %>:<% if @suppressmxlookups_real %>[<% end %><%= @nexthop_real %><% if @suppressmxlookups_real %>]<% end %>
+<% if @includesubdomains -%>
+.<%= @domain %>     <%= @transport_real %>:<% if @suppressmxlookups_real %>[<% end %><%= @nexthop_real %><% if @suppressmxlookups_real %>]<% end %>
+<% end %>

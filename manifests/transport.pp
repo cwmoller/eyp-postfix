@@ -1,6 +1,8 @@
 define postfix::transport(
                             $domain            = $name,
                             $includesubdomains = true,
+                            $suppressmxlookups = true,
+                            $transport         = undef,
                             $nexthop           = undef,
                             $error             = undef,
                             $transport_noop    = false,
@@ -53,31 +55,33 @@ define postfix::transport(
 
   if($transport_noop)
   {
-    concat::fragment{ "${target} noop ${name} ${domain}":
-      target  => $target,
-      order   => $order,
-      content => template("${module_name}/transport/noop.erb"),
-    }
+    $transport_real = ''
+    $nexthop_real = ''
+    $suppressmxlookups_real = false
   }
   elsif($nexthop!=undef)
   {
-    concat::fragment{ "${target} nexthop ${name} ${domain} ${nexthop}":
-      target  => $target,
-      order   => $order,
-      content => template("${module_name}/transport/nexthop.erb"),
-    }
+    $transport_real = ''
+    $nexthop_real = $nexthop
+    $suppressmxlookups_real = $suppressmxlookups
   }
   elsif($error!=undef)
   {
-    concat::fragment{ "${target} error ${name} ${domain}":
-      target  => $target,
-      order   => $order,
-      content => template("${module_name}/transport/error.erb"),
-    }
+    $transport_real = 'error'
+    $nexthop_real = $error
+    $suppressmxlookups_real = false
   }
-  else
+  elsif($transport!=undef)
   {
-    fail('no action configured for this transport rule')
+    $transport_real = $transport
+    $nexthop_real = $nexthop
+    $suppressmxlookups_real = $suppressmxlookups
+  }
+
+  concat::fragment{ "{target} ${transport_real} ${name} ${domain}":
+    target  => $target,
+    order   => $order,
+    content => template("${module_name}/transport/generic.erb"),
   }
 
 }
