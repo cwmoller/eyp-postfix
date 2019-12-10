@@ -151,6 +151,40 @@ postfix::instance { 'out_domain2':
 }
 ```
 
+```puppet
+class { 'postfix':
+  instances => {
+    'gsuite' => {
+      'type'    => 'unix',
+      'chroot'  => 'n',
+      'command' => 'smtp',
+      'opts'    => {
+        'smtp_sasl_auth_enable'      => 'yes',
+        'smtp_sasl_security_options' => 'noanonymous',
+        'smtp_sasl_password_maps'    => 'hash:/etc/postfix/sasl/sasl_passwd',
+        'smtp_tls_security_level'    => 'encrypt',
+        'smtp_tls_CAfile'            => '/etc/ssl/certs/ca-bundle.crt'
+       }
+    }
+  }
+}
+```
+
+From Hiera:
+```yaml
+postfix::instances:
+  'gsuite':
+    'type': 'unix'
+    'chroot': 'n'
+    'command': 'smtp'
+    'opts':
+      'smtp_sasl_auth_enable': 'yes'
+      'smtp_sasl_security_options': 'noanonymous'
+      'smtp_sasl_password_maps': 'hash:/etc/postfix/sasl/sasl_passwd'
+      'smtp_tls_security_level': 'encrypt'
+      'smtp_tls_CAfile': '/etc/ssl/certs/ca-bundle.crt'
+```
+
 blackhole domain or account (to be able to blackhole a domain it requires **postfix::vmail**):
 
 ```puppet
@@ -158,9 +192,22 @@ postfix::alias { 'blackhole':
   to => '/dev/null',
 }
 
+class { 'postfix':
+  aliases => {
+    'blackhole' => { 'to' => '/dev/null' }
+  }
+}
+
 postfix::vmail::alias { '@blackhole.com':
   aliasto => [ 'blackhole@' ],
 }
+```
+
+From Hiera:
+```yaml
+postfix::aliases:
+  blackhole:
+    to: /dev/null
 ```
 
 log example:
@@ -257,6 +304,19 @@ Most variables are standard postfix variables, please refer to postfix documenta
  * setgid_group
  * (...)
 
+For any variables that aren't handled, you can add your own key-value pairs with **custom_config_main**
+```puppet
+class { 'postfix':
+  custom_config_main => {
+    'smtp_sasl_auth_enable'      => 'yes',
+    'smtp_sasl_security_options' => 'noanonymous',
+    'smtp_sasl_password_maps'    => 'hash:/etc/postfix/sasl/sasl_passwd',
+    'smtp_tls_security_level'    => 'encrypt',
+    'smtp_tls_CAfile'            => '/etc/ssl/certs/ca-bundle.crt'
+  }
+}
+```
+
 * **install_mailclient**: controls if a mail client should be installed (default: true)
 
 #### SSL certificates:
@@ -276,12 +336,34 @@ postfix::transport { 'example.com':
 }
 ```
 
+```puppet
+class { 'postfix':
+  transports => {
+    'example.com' => { error => 'email to this domain is not allowed' }
+  }
+}
+```
+
+From Hiera:
+```yaml
+postfix::transports:
+  'example.com':
+    'error': 'email to this domain is not allowed'
+```
+
 SMTP route:
 
 ```puppet
 postfix::transport { 'example.com':
   nexthop => '1.1.1.1',
 }
+```
+
+From Hiera:
+```yaml
+postfix::transports:
+  'example.com':
+    'nexthop': '1.1.1.1'
 ```
 
 ### postfix::vmail

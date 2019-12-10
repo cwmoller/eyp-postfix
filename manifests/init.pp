@@ -89,6 +89,10 @@ class postfix (
                 $queue_run_delay                     = undef,
                 $minimal_backoff_time                = undef,
                 $maximal_backoff_time                = undef,
+                $custom_config_main                  = {},
+                $aliases                             = {},
+                $transports                          = {},
+                $instances                           = {},
               ) inherits postfix::params {
 
   Exec {
@@ -96,6 +100,11 @@ class postfix (
   }
 
   # validate_re($home_mailbox, [ '^Maildir/$', '^Mailbox$', '^$' ], 'Not a supported home_mailbox - valid values: Mailbox, Maildir/ or empty string')
+
+  validate_hash($custom_config_main)
+  validate_hash($aliases)
+  validate_hash($transports)
+  validate_hash($instances)
 
   user { $postfix_username:
     ensure  => 'present',
@@ -275,8 +284,16 @@ class postfix (
   }
 
   #
+  # transport maps
+  #
+
+  create_resources('postfix::transport', $transports)
+
+  #
   # alias maps
   #
+
+  create_resources('postfix::alias', $aliases)
 
   exec { 'reload postfix local aliases':
     command     => "newaliases -oA${alias_maps}",
@@ -348,5 +365,7 @@ class postfix (
       add_default_smtpd_instance => $add_default_smtpd_instance,
       default_smtpd_args         => $smtpd_instance_args,
     }
+
+    create_resources('postfix::instance', $instances)
   }
 }
