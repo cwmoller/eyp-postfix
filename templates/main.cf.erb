@@ -1,5 +1,5 @@
 #
-# puppet managed file - do NOT edit
+# puppet managed file
 #
 
 <% if defined?(@compatibility_level) -%>
@@ -32,6 +32,16 @@ compatibility_level = <%= @compatibility_level %>
 # environments on different UNIX systems.
 #
 queue_directory = /var/spool/postfix
+
+<% if defined?(@queue_run_delay) -%>
+queue_run_delay = <%= @queue_run_delay %>
+<% end -%>
+<% if defined?(@minimal_backoff_time) -%>
+minimal_backoff_time = <%= @minimal_backoff_time %>
+<% end -%>
+<% if defined?(@maximal_backoff_time) -%>
+maximal_backoff_time = <%= @maximal_backoff_time %>
+<% end -%>
 
 # The command_directory parameter specifies the location of all
 # postXXX commands.
@@ -176,10 +186,11 @@ inet_protocols = ipv4
 #
 # See also below, section "REJECTING MAIL FOR UNKNOWN LOCAL USERS".
 #
-mydestination = <%= @mydestination.join(',') %>
+#	mail.$mydomain, www.$mydomain, ftp.$mydomain
 #mydestination = $myhostname, localhost.$mydomain, localhost, $mydomain
 #mydestination = $myhostname, localhost.$mydomain, localhost, $mydomain,
-#	mail.$mydomain, www.$mydomain, ftp.$mydomain
+#
+mydestination = <%= @mydestination.join(',') %>
 
 # REJECTING MAIL FOR UNKNOWN LOCAL USERS
 #
@@ -262,8 +273,9 @@ unknown_local_recipient_reject_code = <%= @unknown_local_recipient_reject_code %
 # only the local machine.
 #
 #mynetworks_style = class
-mynetworks_style = <%= @mynetworks_style %>
 #mynetworks_style = host
+#
+mynetworks_style = <%= @mynetworks_style %>
 
 # Alternatively, you can specify the mynetworks list by hand, in
 # which case Postfix ignores the mynetworks_style setting.
@@ -334,7 +346,7 @@ mynetworks = <%= @mynetworks.join(",") %>
 relayhost = <% if ! @relayhost_mx_lookup %>[<% end %><%= @relayhost %><% if ! @relayhost_mx_lookup %>]<% end %>
 <% end -%>
 
-<% if defined?(@smtp_fallback_relay) -%>
+<% if @smtp_fallback_relay.any? -%>
 smtp_fallback_relay = <%= @smtp_fallback_relay.join(',') %>
 <% end -%>
 
@@ -411,9 +423,10 @@ smtp_generic_maps = hash:<%= @smtp_generic_maps %>
 # "postfix reload" to eliminate the delay.
 #
 #alias_maps = dbm:/etc/aliases
-alias_maps = hash:<%= @alias_maps %>
 #alias_maps = hash:/etc/aliases, nis:mail.aliases
 #alias_maps = netinfo:/aliases
+#
+alias_maps = hash:<%= @alias_maps %>
 
 # The alias_database parameter specifies the alias database(s) that
 # are built with "newaliases" or "sendmail -bi".  This is a separate
@@ -422,8 +435,9 @@ alias_maps = hash:<%= @alias_maps %>
 #
 #alias_database = dbm:/etc/aliases
 #alias_database = dbm:/etc/mail/aliases
-alias_database = hash:/etc/aliases
 #alias_database = hash:/etc/aliases, hash:/opt/majordomo/aliases
+#
+alias_database = hash:/etc/aliases
 
 # ADDRESS EXTENSIONS (e.g., user+foo)
 #
@@ -453,7 +467,6 @@ message_size_limit = <%= @message_size_limit %>
 # mailbox file is /var/spool/mail/user or /var/mail/user.  Specify
 # "Maildir/" for qmail-style delivery (the / is required).
 #
-#home_mailbox = Mailbox
 home_mailbox = <%= @home_mailbox %>
 
 # The mail_spool_directory parameter specifies the directory where
@@ -461,7 +474,6 @@ home_mailbox = <%= @home_mailbox %>
 # system type.
 #
 mail_spool_directory = <%= @mail_spool_directory %>
-#mail_spool_directory = /var/spool/mail
 
 # The mailbox_command parameter specifies the optional external
 # command to use instead of mailbox delivery. The command is run as
@@ -569,18 +581,6 @@ mail_spool_directory = <%= @mail_spool_directory %>
 #
 # The controls listed here are only a very small subset. The file
 # SMTPD_ACCESS_README provides an overview.
-
-# The header_checks parameter specifies an optional table with patterns
-# that each logical message header is matched against, including
-# headers that span multiple physical lines.
-#
-# By default, these patterns also apply to MIME headers and to the
-# headers of attached messages. With older Postfix versions, MIME and
-# attached message headers were treated as body text.
-#
-# For details, see "man header_checks".
-#
-#header_checks = regexp:/etc/postfix/header_checks
 
 # FAST ETRN SERVICE
 #
@@ -747,7 +747,37 @@ sample_directory = /usr/share/doc/postfix-2.6.6/samples
 #
 readme_directory = <%= scope.function_bool2yesno([@readme_directory]) %>
 
+smtpd_helo_required = <%= scope.function_bool2yesno([@smtpd_helo_required]) %>
+disable_vrfy_command = <%= scope.function_bool2yesno([@disable_vrfy_command]) %>
 
+smtpd_sasl_auth_enable = <%= scope.function_bool2yesno([@smtpd_sasl_auth_enable]) %>
+
+<% if(@smtp_sasl_auth_enable) -%>
+smtp_sasl_auth_enable = <%= scope.function_bool2yesno([@smtp_sasl_auth_enable]) %>
+	<%- if @smtp_sasl_security_options.any? -%>
+smtp_sasl_security_options = <%= @smtp_sasl_security_options.join(',') %>
+	<%- end -%>
+<% end -%>
+
+<% if(@smtpd_use_tls) -%>
+smtpd_use_tls = <%= scope.function_bool2yesno([@smtpd_use_tls]) %>
+	<%- if @smtpd_tls_protocols.any? -%>
+smtpd_tls_protocols = <%= @smtpd_tls_protocols.join(',') %>
+	<%- end -%>
+<% end -%>
+
+<% if(@smtp_use_tls) -%>
+smtp_use_tls = <%= scope.function_bool2yesno([@smtp_use_tls]) %>
+	<%- if @smtp_tls_exclude_ciphers.any? -%>
+smtp_tls_exclude_ciphers = <%= @smtp_tls_exclude_ciphers.join(',') %>
+	<%- end -%>
+	<%- if @tls_medium_cipherlist.any? -%>
+tls_medium_cipherlist = <%= @tls_medium_cipherlist.join(':') %>
+	<%- end -%>
+	<%- if(@smtpd_tls_mandatory_ciphers) -%>
+smtpd_tls_mandatory_ciphers = <%= @smtpd_tls_mandatory_ciphers %>
+	<%- end -%>
+<% end -%>
 
 <%- if(@opportunistictls) -%>
 #opportunistic TLS
@@ -783,6 +813,14 @@ smtpd_tls_cert_file=/etc/pki/tls/certs/postfix.pem
 # TLS pk
 smtpd_tls_key_file=/etc/pki/tls/private/postfix-key.key
 <%- end -%>
+
+<% if @smtp_tls_mandatory_protocols.any? -%>
+smtp_tls_mandatory_protocols = <%= @smtp_tls_mandatory_protocols.join(',') %>
+<% end -%>
+
+<% if defined?(@smtp_tls_ca_path) -%>
+smtp_tls_CApath = <%= @smtp_tls_ca_path %>
+<% end -%>
 
 <%- if defined?(@biff) -%>
 biff = <%= scope.function_bool2yesno([@biff]) %>

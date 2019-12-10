@@ -1,14 +1,53 @@
 # CHANGELOG
 
+## 0.2.41
+
+* added postfix settings:
+  - **smtp_tls_mandatory_protocols**
+  - **smtp_tls_ca_path** for **smtp_tls_CApath**
+
+## 0.2.40
+
+* Added master.cf options for **RHEL 8**
+
+## 0.2.39
+
+* Added **RHEL 8** support
+
+## 0.2.37
+
+* added queue related variables:
+  - queue_run_delay
+  - minimal_backoff_time
+  - maximal_backoff_time
+* added **postfix::headercheck**
+* added SLES 12.4 support
+
+## 0.2.36
+
+* bugfix virtual alias maps reload
+
+## 0.2.35
+
+* added security related options (thanks to [juju4](https://github.com/juju4) for this [PR-63](https://github.com/NTTCom-MS/eyp-postfix/pull/63) - merged with changes)
+
+## 0.2.34
+
+* added **SLES 12.3** support
+
+## 0.2.33
+
+* added support for multi-instance virtual_alias_maps
+
 ## 0.2.32
 
-* added SELinux context to (thanks to [Tony Green](https://github.com/albatrossflavour) for this [PR-89](https://github.com/NTTCom-MS/eyp-postfix/pull/51)):
+* added SELinux context to (thanks to [Tony Green](https://github.com/albatrossflavour) for this [PR-51](https://github.com/NTTCom-MS/eyp-postfix/pull/51)):
   - alias maps
   - mailboxes directory and subdirectories (default: /var/vmail)
 
 ## 0.2.31
 
-* added Ubuntu 18.04 support
+* added **Ubuntu 18.04** support
 * added **compatibility_level** variable
 * variable **mynetworks_style** set to **subnet** by default across postfix versions
 
@@ -46,7 +85,7 @@
 
 ## 0.2.22
 
-* added Ubuntu 16.04 support
+* added **Ubuntu 16.04** support
 
 ## 0.2.21
 

@@ -44,6 +44,11 @@ class postfix::params {
           $manage_mastercf_default=true
           $postfix_ver='2.10.1'
         }
+        /^8.*$/:
+        {
+          $manage_mastercf_default=true
+          $postfix_ver='3.3.1'
+        }
         default: { fail('Unsupported RHEL/CentOS version!')  }
       }
     }
@@ -161,6 +166,10 @@ class postfix::params {
             '11.3':
             {
               $postfix_ver='2.9.4'
+            }
+            /^12.[34]/:
+            {
+              $postfix_ver='3.2.0'
             }
             default: { fail("Unsupported operating system ${::operatingsystem} ${::operatingsystemrelease}") }
           }

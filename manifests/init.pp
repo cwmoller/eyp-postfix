@@ -13,6 +13,7 @@
 # 55 - smtpd restrictions
 # 60 - content filter
 # 61 - sender_canonical_maps
+# 62 - header_checks
 #
 ###
 #
@@ -49,7 +50,7 @@ class postfix (
                 $in_flow_delay                       = '1s',
                 $setgid_group                        = $postfix::params::setgid_group_default,
                 $readme_directory                    = $postfix::params::readme_directory_default,
-                $smtp_fallback_relay                 = undef,
+                $smtp_fallback_relay                 = [],
                 $postfix_username_uid                = $postfix_username_uid_default,
                 $postfix_username_gid                = $postfix_username_gid_default,
                 $add_default_smtpd_instance          = true,
@@ -72,50 +73,33 @@ class postfix (
                 $message_size_limit                  = undef, # @param message_size_limit The maximal size in bytes of a message, including envelope information. (default: undef)
                 $compatibility_level                 = $postfix::params::compatibility_level_default,
                 $mynetworks_style                    = 'subnet',
+                $smtpd_helo_required                 = false,
+                $disable_vrfy_command                = false,
+                $smtp_sasl_auth_enable               = false,
+                $smtp_sasl_security_options          = [ 'noplaintext', 'noanonymous' ],
+                $smtpd_sasl_auth_enable              = false,
+                $smtpd_use_tls                       = false,
+                $smtpd_tls_protocols                 = [ '!SSLv2', '!SSLv3' ],
+                $smtp_tls_mandatory_protocols        = [],
+                $smtp_tls_ca_path                    = undef,
+                $smtp_use_tls                        = false,
+                $smtp_tls_exclude_ciphers            = [],
+                $smtpd_tls_mandatory_ciphers         = undef,
+                $tls_medium_cipherlist               = [],
+                $queue_run_delay                     = undef,
+                $minimal_backoff_time                = undef,
+                $maximal_backoff_time                = undef,
                 $custom_config_main                  = {},
                 $aliases                             = {},
                 $transports                          = {},
-                $instances                           = {}
+                $instances                           = {},
               ) inherits postfix::params {
 
   Exec {
     path => '/bin:/sbin:/usr/bin:/usr/sbin',
   }
 
-  validate_array($mynetworks)
-
-  if($biff)
-  {
-    validate_bool($biff)
-  }
-
-  if($append_dot_mydomain)
-  {
-    validate_bool($append_dot_mydomain)
-  }
-
-  if($readme_directory)
-  {
-    validate_string($readme_directory)
-  }
-
-  validate_string($myorigin)
-
-  validate_string($mydomain)
-
-  if($recipient_delimiter)
-  {
-    validate_string($recipient_delimiter)
-  }
-
-  validate_array($mydestination)
-
-  if($smtp_fallback_relay!=undef)
-  {
-    validate_array($smtp_fallback_relay)
-  }
-
-  validate_re($home_mailbox, [ '^Maildir/$', '^Mailbox$', '^$' ], 'Not a supported home_mailbox - valid values: Mailbox, Maildir/ or empty string')
+  # validate_re($home_mailbox, [ '^Maildir/$', '^Mailbox$', '^$' ], 'Not a supported home_mailbox - valid values: Mailbox, Maildir/ or empty string')
 
   validate_hash($custom_config_main)
   validate_hash($aliases)
