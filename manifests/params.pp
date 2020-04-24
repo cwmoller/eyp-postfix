@@ -39,7 +39,7 @@ class postfix::params {
           $manage_mastercf_default=true
           $postfix_ver='2.6.6'
         }
-        /^7.*$/:
+        /^7.*$|^2.*$/:
         {
           $manage_mastercf_default=true
           $postfix_ver='2.10.1'
