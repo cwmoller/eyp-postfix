@@ -244,7 +244,7 @@ class postfix::mastercf(
             order   => '24',
           }
         }
-        /^7.*$/:
+        /^7.*$|^2.*$/:
         {
           # smtp      inet  n       -       n       -       -       smtpd
           if($add_default_smtpd_instance)
